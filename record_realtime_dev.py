@@ -23,7 +23,7 @@ plt.style.use('ggplot')
 
 form_1 = pyaudio.paInt16 # 16-bit resolution
 chans = 1 # 1 channel
-samp_rate = 44100 # 22050 # 44.1kHz sampling rate
+samp_rate = 44100#44100 # 22050 # 44.1kHz sampling rate
 chunk = 16384
 # chunk = 44100 # samples for buffer (more samples = better freq resolution)
 # dev_index = 2 # device index found by p.get_device_info_by_index(ii)
@@ -121,12 +121,10 @@ while True:
     peak_data = 1.0*fft_data
 
 
-    peak_data = peak_data[:260]
-
-    # print(peak_data[low_freq_loc:])
-
+    peak_data = peak_data[:150]
+    print(f_vec[149+low_freq_loc])
     for i in range(11):
-        peak_data[low_freq_loc + i] += 0.0005 # 0.0005 - 0.001
+        peak_data[low_freq_loc + i] += 0.0002 # 0.0005 - 0.001
 
 
     # print(peak_data[low_freq_loc:])
@@ -153,17 +151,24 @@ while True:
             annot_locs.append(annot.get_position())
             annot_array.append(annot)
             # zero-out old peaks so we dont find them again
+            # peak_data[max_loc+low_freq_loc-peak_shift:max_loc+low_freq_loc+peak_shift] = np.repeat(0,len(peak_data[max_loc+low_freq_loc-peak_shift:max_loc+low_freq_loc+peak_shift])) # comment out if single note
             # peak_data[max_loc+low_freq_loc-peak_shift:max_loc+low_freq_loc+peak_shift] = np.repeat(0,peak_shift*2) # comment out if single note
 
     freq = max(set(freqs), key=freqs.count)
     print(f"freq {freq}")
-    if freq > 200:
+    if freq > 100 and freq < 690:
         ref.set({
-            'note': freq
+            'note': freq,
+            'note0': freqs[0],
+            'note1': freqs[1],
+            'note2': freqs[2],
+            'note3': freqs[3],
+            'note4': freqs[4],
+            'note5': freqs[5]
         })
 
     print()
-    # plt.pause(0.1)
+    plt.pause(0.001)
     # plt.pause(0.001)
     # wait for user to okay the next loop (comment out to have continuous loop)
     # imp = input("Input 0 to Continue, or 1 to save figure ")
