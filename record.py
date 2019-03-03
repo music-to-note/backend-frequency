@@ -14,8 +14,6 @@ dev_index = 2 # device index found by p.get_device_info_by_index(ii)
 audio = pyaudio.PyAudio() # create pyaudio instantiation
 
 # create pyaudio stream
-import ipdb
-ipdb.set_trace()
 stream = audio.open(format = form_1,rate = samp_rate,channels = chans, \
                     input = True, \
                     frames_per_buffer=chunk)
