@@ -5,6 +5,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
+
+cred = credentials.Certificate("hacktech2019-233403-firebase-adminsdk-4frsw-f31a97f325.json")
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://hacktech2019-233403.firebaseio.com/'
+})
+
+ref = db.reference('/')
+
+
+
+
 plt.style.use('ggplot')
 
 form_1 = pyaudio.paInt16 # 16-bit resolution
@@ -78,7 +92,7 @@ while True:
     # calculate and subtract average spectral noise
     if ii<noise_len:
         if ii==0:
-            print("Stay Quiet, Measuring Noise...")        
+            print("Stay Quiet, Measuring Noise...")
         noise_fft_vec.append(fft_data)
         noise_amp_vec.extend(data)
         print(".")
@@ -88,7 +102,7 @@ while True:
             print("Now Recording")
         ii+=1
         continue
-    
+
     fft_data = np.subtract(fft_data,noise_fft) # subtract average spectral noise
 
     # plot the new data and adjust y-axis (if needed)
@@ -112,21 +126,18 @@ while True:
     # print(peak_data[low_freq_loc:])
 
     for i in range(11):
-        peak_data[low_freq_loc + i] += 0.0009 # 0.0005 - 0.001
+        peak_data[low_freq_loc + i] += 0.0005 # 0.0005 - 0.001
 
 
     # print(peak_data[low_freq_loc:])
 
 
-
+    freqs = []
     for jj in range(6):
         max_loc = np.argmax(peak_data[low_freq_loc:])
-        # print(peak_data[low_freq_loc:])
-        # print(max_loc)
-        # print(peak_data[low_freq_loc + max_loc])
-        print(f_vec[max_loc+low_freq_loc])
+        # print(f_vec[max_loc+low_freq_loc])
 
-
+        freqs.append(f_vec[max_loc+low_freq_loc])
 
         if peak_data[max_loc+low_freq_loc]>10*np.mean(noise_amp):
             annot = ax.annotate('Freq: %2.2f'%(f_vec[max_loc+low_freq_loc]),xy=(f_vec[max_loc+low_freq_loc],fft_data[max_loc+low_freq_loc]),\
@@ -138,14 +149,22 @@ while True:
                 annot.set_x(40)
             if jj==5:
                 annot.set_position((-30,15))
-                
+
             annot_locs.append(annot.get_position())
             annot_array.append(annot)
             # zero-out old peaks so we dont find them again
-            peak_data[max_loc+low_freq_loc-peak_shift:max_loc+low_freq_loc+peak_shift] = np.repeat(0,peak_shift*2) # comment out if single note
+            # peak_data[max_loc+low_freq_loc-peak_shift:max_loc+low_freq_loc+peak_shift] = np.repeat(0,peak_shift*2) # comment out if single note
+
+    freq = max(set(freqs), key=freqs.count)
+    print(f"freq {freq}")
+    if freq > 200:
+        ref.set({
+            'note': freq
+        })
+
     print()
-    # plt.pause(0.1)        
-    # plt.pause(0.001)    
+    # plt.pause(0.1)
+    # plt.pause(0.001)
     # wait for user to okay the next loop (comment out to have continuous loop)
     # imp = input("Input 0 to Continue, or 1 to save figure ")
     # if imp=='1':
