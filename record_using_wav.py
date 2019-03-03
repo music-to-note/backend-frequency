@@ -22,8 +22,6 @@ def analyze(f):
 	form_1 = audio.get_format_from_width(wf.getsampwidth())
 	channels = wf.getnchannels()
 	rate = wf.getframerate()
-	import ipdb
-	ipdb.set_trace()
 	stream = audio.open(format = form_1,rate = rate,channels = channels, \
 	                    input = True, \
 	                    frames_per_buffer=CHUNK)
